@@ -1,4 +1,4 @@
-trm-core changelog
+trm-commons changelog
 =================
 
 Legend
@@ -7,20 +7,3 @@ Legend
 ! : changed
 + : added
 - : removed
-
-2025-02-06 v6.3.0
--------------------
-
-* upgrading package remove previous ZTRM comments in workbench (import) transport
-+ fetch package remote content
-* fix translation transport generation
-+ move trm package dependencies to core
-+ transport migration on overwrite
-! DEVC, CUST and LANG are now TRM relevant
-* root superpackage on devc tr import blank
-+ clear state on package install (remove from skipped transports)
-+ add abapgit source code to TRM artifact
-+ skip ignored objects listed in .abapgit.xml
-+ add namespace in manifest
-! abstract registry for custom implementation
-+ add file system registry for local publish and install
