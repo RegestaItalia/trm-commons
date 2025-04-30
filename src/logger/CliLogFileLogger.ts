@@ -1,7 +1,7 @@
 import { ResponseMessage } from "trm-registry-types";
 import { CliLogger } from "./CliLogger";
 import { appendFileSync, existsSync, mkdirSync, writeFileSync } from "fs";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 import { join } from "path";
 import { getStackTrace } from "get-stack-trace";
 import { TreeLog } from "./TreeLog";
