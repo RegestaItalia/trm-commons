@@ -1,5 +1,5 @@
 export type Question = {
-    type: any,
+    type: 'confirm' | 'input' | 'list' | 'editor' | 'password' | 'select',
     message: any,
     name: any,
     default?: any,
@@ -8,5 +8,7 @@ export type Question = {
     when?: any,
     pageSize?: number,
     expanded?: boolean,
-    postfix?: string
+    postfix?: string,
+    filter?: boolean,
+    required?: boolean,
 }

@@ -2,6 +2,7 @@ import { Question } from "./Question";
 import { CliLogFileLogger, CliLogger, Logger } from "../logger";
 import { IInquirer } from "./IInquirer";
 import * as cliInquirer from '@inquirer/prompts';
+import { select as selectPro } from 'inquirer-select-pro';
 
 export class CliInquirer implements IInquirer {
 
@@ -15,12 +16,17 @@ export class CliInquirer implements IInquirer {
         }
         var aQuestions: Question[];
         var hash = {};
+        var oResponse: any;
         if(!Array.isArray(arg1)){
             aQuestions = [arg1];
         }else{
             aQuestions = arg1;
         }
         for(var question of aQuestions){
+            oResponse = {};
+            if(question.type === 'select'){
+                (question.type as any) = 'inquirer-select-pro';
+            }
             if(question.type === 'list'){ // deprecated
                 question.type = 'select';
             }
@@ -35,9 +41,18 @@ export class CliInquirer implements IInquirer {
                 }
                 if(prompt){
                     question.message = this._prefix + question.message;
-                    const oResponse = await cliInquirer[question.type](question);
+                    oResponse = await cliInquirer[question.type](question as any);
                     hash[question.name] = oResponse;
                 }
+            }else if((question.type as any) === 'inquirer-select-pro'){
+                oResponse = await selectPro({
+                    message: question.message,
+                    validate: question.validate,
+                    options: question.choices,
+                    filter: question.filter,
+                    required: question.required
+                });
+                hash[question.name] = oResponse;
             }else{
                 throw new Error(`Unknown CLI inquirer type "${question.type}".`);
             }
