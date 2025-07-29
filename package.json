@@ -1,6 +1,6 @@
 {
   "name": "trm-commons",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "TRM (Transport Request Manager) Shared library",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -41,6 +41,7 @@
     "chalk": "^5.4.1",
     "cli-table3": "^0.6.5",
     "get-stack-trace": "^3.1.1",
+    "inquirer-select-pro": "^1.0.0-alpha.9",
     "loading-cli": "^1.1.2",
     "print-tree": "^0.1.5",
     "trm-registry-types": "^1.2.0",

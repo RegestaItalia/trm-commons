@@ -7,3 +7,7 @@ Legend
 ! : changed
 + : added
 - : removed
+
+2025-07-28 v1.1.0
+-------------------
++ add select pro inquirer
