@@ -6,6 +6,7 @@ export class RFCConnect implements IConnect {
 
     name = 'RFC';
     description = 'RFC (Uses node-rfc)';
+    loginData = true;
 
     private _connData: any;
 
@@ -70,63 +71,61 @@ export class RFCConnect implements IConnect {
         this._connData = { ...commandArgs, ...this._connData };
     }
 
-    public getParsedData(args?: any): any {
-        if (!args) {
-            args = this._connData;
-        }
+    public setData(data: any): void {
+        this._connData = data;
+    }
+
+    public getData(): any {
         var parsed: any = {
-            dest: args.dest,
-            ashost: args.ashost,
-            sysnr: args.sysnr,
-            client: args.client,
-            user: args.user,
-            passwd: args.passwd,
-            lang: args.lang
+            dest: this._connData.dest,
+            ashost: this._connData.ashost,
+            sysnr: this._connData.sysnr,
+            client: this._connData.client,
+            user: this._connData.user,
+            passwd: this._connData.passwd,
+            lang: this._connData.lang
         };
-        if (args.saprouter) {
-            parsed.saprouter = args.saprouter;
+        if (this._connData.saprouter) {
+            parsed.saprouter = this._connData.saprouter;
         }
         return parsed;
     }
 
-    public logConnectionData(connectionData?: any) {
-        if (!connectionData) {
-            connectionData = this.getParsedData();
-        }
-        if (connectionData.dest) {
-            Logger.info(`System ID: ${connectionData.dest}`);
+    public logData() {
+        if (this._connData.dest) {
+            Logger.info(`System ID: ${this._connData.dest}`);
         } else {
             Logger.warning(`System ID: Unknown`);
         }
-        if (connectionData.ashost) {
-            Logger.info(`Application server: ${connectionData.ashost}`);
+        if (this._connData.ashost) {
+            Logger.info(`Application server: ${this._connData.ashost}`);
         } else {
             Logger.warning(`Application server: Unknown`);
         }
-        if (connectionData.sysnr) {
-            Logger.info(`Instance number: ${connectionData.sysnr}`);
+        if (this._connData.sysnr) {
+            Logger.info(`Instance number: ${this._connData.sysnr}`);
         } else {
             Logger.warning(`Instance number: Unknown`);
         }
-        if (connectionData.saprouter) {
-            Logger.info(`SAProuter: ${connectionData.saprouter}`);
+        if (this._connData.saprouter) {
+            Logger.info(`SAProuter: ${this._connData.saprouter}`);
         }
-        if (connectionData.client) {
-            Logger.info(`Logon client: ${connectionData.client}`);
+        if (this._connData.client) {
+            Logger.info(`Logon client: ${this._connData.client}`);
         } else {
             Logger.warning(`Logon client: Unknown`);
         }
-        if (connectionData.lang) {
-            Logger.info(`Logon language: ${connectionData.lang}`);
+        if (this._connData.lang) {
+            Logger.info(`Logon language: ${this._connData.lang}`);
         } else {
             Logger.warning(`Logon language: Unknown`);
         }
-        if (connectionData.user) {
-            Logger.info(`Logon user: ${connectionData.user}`);
+        if (this._connData.user) {
+            Logger.info(`Logon user: ${this._connData.user}`);
         } else {
             Logger.warning(`Logon user: Unknown`);
         }
-        if (connectionData.passwd) {
+        if (this._connData.passwd) {
             Logger.info(`Logon password: *** (SAVED IN PLAIN TEXT)`);
         } else {
             Logger.warning(`Logon password: Unknown`);

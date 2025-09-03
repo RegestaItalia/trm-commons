@@ -8,6 +8,10 @@ Legend
 + : added
 - : removed
 
+2025-09-03 v3.2.0
+-------------------
+! IConnect interface
+
 2025-09-03 v3.1.0
 -------------------
 ! plugin manager as singleton

@@ -7,6 +7,7 @@ export class RESTConnect implements IConnect {
 
     name = 'REST';
     description = 'REST (Requires trm-rest)';
+    loginData = true;
 
     private _connData: any;
 
@@ -37,49 +38,46 @@ export class RESTConnect implements IConnect {
         });
     }
 
-    public getParsedData(args?: any): any {
-        if (!args) {
-            args = this._connData;
-        }
-        var parsed: any = {
-            endpoint: args.endpoint,
-            rfcdest: args.rfcdest || 'NONE',
-            client: args.client,
-            user: args.user,
-            passwd: args.passwd,
-            lang: args.lang
-        };
-        return parsed;
+    public setData(data: any): void {
+        this._connData = data;
     }
 
-    public logConnectionData(connectionData?: any) {
-        if (!connectionData) {
-            connectionData = this.getParsedData();
-        }
-        if (connectionData.endpoint) {
-            Logger.info(`System endpoint: ${connectionData.endpoint}`);
+    public getData(): any {
+        return {
+            endpoint: this._connData.endpoint,
+            rfcdest: this._connData.rfcdest || 'NONE',
+            client: this._connData.client,
+            user: this._connData.user,
+            passwd: this._connData.passwd,
+            lang: this._connData.lang
+        };
+    }
+
+    public logData() {
+        if (this._connData.endpoint) {
+            Logger.info(`System endpoint: ${this._connData.endpoint}`);
         } else {
             Logger.warning(`System endpoint: Unknown`);
         }
-        if (connectionData.rfcdest && connectionData.rfcdest !== 'NONE') {
-            Logger.info(`RFC Forward: ${connectionData.rfcdest}`);
+        if (this._connData.rfcdest && this._connData.rfcdest !== 'NONE') {
+            Logger.info(`RFC Forward: ${this._connData.rfcdest}`);
         }
-        if (connectionData.client) {
-            Logger.info(`Logon client: ${connectionData.client}`);
+        if (this._connData.client) {
+            Logger.info(`Logon client: ${this._connData.client}`);
         } else {
             Logger.warning(`Logon client: Unknown`);
         }
-        if (connectionData.lang) {
-            Logger.info(`Logon language: ${connectionData.lang}`);
+        if (this._connData.lang) {
+            Logger.info(`Logon language: ${this._connData.lang}`);
         } else {
             Logger.warning(`Logon language: Unknown`);
         }
-        if (connectionData.user) {
-            Logger.info(`Logon user: ${connectionData.user}`);
+        if (this._connData.user) {
+            Logger.info(`Logon user: ${this._connData.user}`);
         } else {
             Logger.warning(`Logon user: Unknown`);
         }
-        if (connectionData.passwd) {
+        if (this._connData.passwd) {
             Logger.info(`Logon password: *** (SAVED IN PLAIN TEXT)`);
         } else {
             Logger.warning(`Logon password: Unknown`);
