@@ -1,6 +1,6 @@
 {
   "name": "trm-commons",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "TRM (Transport Request Manager) Shared library",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -40,6 +40,7 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
+    "@esm2cjs/normalize-url": "^8.0.0",
     "@inquirer/prompts": "^7.5.0",
     "chalk": "^4.1.2",
     "cli-table3": "^0.6.5",
