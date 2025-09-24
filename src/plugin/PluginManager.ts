@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { execSync } from "node:child_process";
 import { Logger } from "../logger";
 import { PluginContext, PluginCtx, PluginHandler, PluginRegisterFn } from ".";
+import { getGlobalNodeModules } from "../utils/getGlobalNodeModules";
 
 type Registered = {
   ctx: PluginCtx;
@@ -17,6 +17,7 @@ type Registered = {
 
 export type LoadOptions = {
   defaultHandlerTimeoutMs?: number;
+  globalNodeModulesPath?: string;
 };
 
 class PluginManager {
@@ -29,6 +30,7 @@ class PluginManager {
   public constructor(opts?: LoadOptions) {
     this.options = {
       defaultHandlerTimeoutMs: opts?.defaultHandlerTimeoutMs ?? 3000,
+      globalNodeModulesPath: opts?.globalNodeModulesPath ?? getGlobalNodeModules()
     };
   }
 
@@ -124,8 +126,7 @@ class PluginManager {
     const nm = this.findNearestNodeModules(process.cwd());
     if (nm) dirs.push(nm);
     //globals
-    const g = this.getGlobalNodeModules();
-    if (g) dirs.push(g);
+    if (this.options.globalNodeModulesPath) dirs.push(this.options.globalNodeModulesPath);
     return dirs;
   }
 
@@ -138,14 +139,6 @@ class PluginManager {
       if (parent === dir) break;
       dir = parent;
     }
-    return null;
-  }
-
-  private getGlobalNodeModules(): string | null {
-    try {
-      const out = execSync("npm root -g", { encoding: "utf8" }).trim();
-      if (out && fs.existsSync(out)) return out;
-    } catch { }
     return null;
   }
 
