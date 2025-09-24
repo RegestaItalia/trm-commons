@@ -8,6 +8,10 @@ Legend
 + : added
 - : removed
 
+2025-09-24 v3.3.1
+-------------------
+! pass options on plugin load
+
 2025-09-24 v3.3.0
 -------------------
 + global node modules as options in plugin init
