@@ -69,6 +69,9 @@ export class RFCConnect implements IConnect {
 
     public async onAfterLoginData(force: boolean, commandArgs: any): Promise<void> {
         this._connData = { ...commandArgs, ...this._connData };
+        if(this._connData.user){
+            this._connData.user = this._connData.user.toUpperCase();
+        }
     }
 
     public setData(data: any): void {
