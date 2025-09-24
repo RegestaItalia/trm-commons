@@ -179,13 +179,19 @@ class PluginManager {
 }
 
 export namespace Plugin {
-    const manager: PluginManager = new PluginManager();
+    var manager: PluginManager = null;
     
-    export async function load(): Promise<any> {
+    export async function load(opts?: LoadOptions): Promise<any> {
+      if(!manager){
+        manager = new PluginManager(opts);
+      }
       return manager.load();
     }
 
     export async function call<Payload>(source: PluginCtx, event: string, payload: Payload): Promise<Payload> {
+      if(!manager){
+        await load();
+      }
       return manager.call(event, source, payload);
     }
     
