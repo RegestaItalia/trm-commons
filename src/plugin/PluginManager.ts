@@ -94,6 +94,10 @@ class PluginManager {
     await this._loadingPromise;
   }
 
+  public getLoadedPlugins(): string[]{
+    return this.regs.map(o => o.moduleName);
+  }
+
   async call<Payload>(event: string, source: PluginCtx, payload: Payload): Promise<Payload> {
     const ctx: PluginContext = { source, event };
     let current = payload;
@@ -181,11 +185,12 @@ class PluginManager {
 export namespace Plugin {
     var manager: PluginManager = null;
     
-    export async function load(opts?: LoadOptions): Promise<any> {
+    export async function load(opts?: LoadOptions): Promise<string[]> {
       if(!manager){
         manager = new PluginManager(opts);
       }
-      return manager.load();
+      await manager.load();
+      return manager.getLoadedPlugins();
     }
 
     export async function call<Payload>(source: PluginCtx, event: string, payload: Payload): Promise<Payload> {
