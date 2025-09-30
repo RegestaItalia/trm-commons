@@ -1,5 +1,5 @@
 export type Question = {
-    type: 'confirm' | 'input' | 'list' | 'editor' | 'password' | 'select',
+    type: 'confirm' | 'input' | 'list' | 'editor' | 'password' | 'select' | 'search',
     message: any,
     name: any,
     default?: any,
@@ -11,4 +11,5 @@ export type Question = {
     postfix?: string,
     filter?: boolean,
     required?: boolean,
+    source?: (term: string | void) => Promise<any[]>
 }

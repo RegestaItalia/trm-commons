@@ -20,11 +20,17 @@ export type LoadOptions = {
   globalNodeModulesPath?: string;
 };
 
+export type PluginModule = {
+  name: string,
+  location: string
+}
+
 class PluginManager {
   private _loaded = false;
   private _loadingPromise: Promise<void> | null = null;
 
   private regs: Registered[] = [];
+  private plugins: PluginModule[] = [];
   private options: Required<LoadOptions>;
 
   public constructor(opts?: LoadOptions) {
@@ -74,6 +80,7 @@ class PluginManager {
               });
             };
             (loaded as PluginRegisterFn)(on);
+            this.plugins.push({ name, location: abs });
           }
         } catch (e) {
           Logger.error(e.toString(), true);
@@ -94,8 +101,8 @@ class PluginManager {
     await this._loadingPromise;
   }
 
-  public getLoadedPlugins(): string[]{
-    return this.regs.map(o => o.moduleName);
+  public getLoadedPlugins(): PluginModule[]{
+    return this.plugins;
   }
 
   async call<Payload>(event: string, source: PluginCtx, payload: Payload): Promise<Payload> {
@@ -185,7 +192,7 @@ class PluginManager {
 export namespace Plugin {
     var manager: PluginManager = null;
     
-    export async function load(opts?: LoadOptions): Promise<string[]> {
+    export async function load(opts?: LoadOptions): Promise<PluginModule[]> {
       if(!manager){
         manager = new PluginManager(opts);
       }
