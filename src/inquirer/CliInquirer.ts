@@ -28,7 +28,17 @@ export class CliInquirer implements IInquirer {
                 (question.type as any) = 'inquirer-select-pro';
             }
             if(question.type === 'list'){ // deprecated
-                question.type = 'select';
+                question.type = 'search';
+                if(!question.source){
+                    question.source = async(input) : Promise<any[]> => {
+                        const choices = (question.choices || []);
+                        if(input){
+                            return choices.filter(o => o.name ? o.name.toUpperCase().includes(input.toUpperCase()) : o.value.toUpperCase().includes(input.toUpperCase()));
+                        }else{
+                            return choices;
+                        }
+                    };
+                }
             }
             if(cliInquirer[question.type]){
                 var prompt: boolean;

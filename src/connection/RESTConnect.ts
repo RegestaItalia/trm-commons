@@ -33,9 +33,15 @@ export class RESTConnect implements IConnect {
 
     public async onAfterLoginData(force: boolean, commandArgs: any): Promise<void> {
         this._connData = { ...commandArgs, ...this._connData };
-        this._connData.endpoint = normalizeUrl(this._connData.endpoint, {
-            removeTrailingSlash: true
-        });
+        try {
+            const url = new URL(this._connData.endpoint);
+            this._connData.endpoint = normalizeUrl(url.origin, {
+                removeTrailingSlash: true
+            });
+        } catch { }
+        if (this._connData.user) {
+            this._connData.user = this._connData.user.toUpperCase();
+        }
     }
 
     public setData(data: any): void {
