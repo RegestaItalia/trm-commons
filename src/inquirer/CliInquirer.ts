@@ -31,7 +31,11 @@ export class CliInquirer implements IInquirer {
                 question.type = 'search';
                 if(!question.source){
                     question.source = async(input) : Promise<any[]> => {
-                        const choices = (question.choices || []);
+                        var choices = (question.choices || []);
+                        if(question.default){
+                            //find default, move as first selection item
+                            choices = choices.sort((a, b) => (a.value === question.default ? -1 : b.value === question.default ? 1 : 0));
+                        }
                         if(input){
                             return choices.filter(o => o.name ? o.name.toUpperCase().includes(input.toUpperCase()) : o.value.toUpperCase().includes(input.toUpperCase()));
                         }else{
