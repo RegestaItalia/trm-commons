@@ -8,6 +8,10 @@ Legend
 + : added
 - : removed
 
+2025-09-24 v3.4.1
+-------------------
++ saprouter inquirer default to null
+
 2025-09-24 v3.4.0
 -------------------
 * return list of loaded plugins

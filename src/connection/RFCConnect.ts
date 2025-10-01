@@ -65,6 +65,9 @@ export class RFCConnect implements IConnect {
                 return (commandArgs.saprouter ? false : true) || force;
             }
         }]);
+        if(this._connData.saprouter && !this._connData.saprouter.trim()){
+            this._connData.saprouter = undefined; //force back to empty (cases where it's blank string)
+        }
     }
 
     public async onAfterLoginData(force: boolean, commandArgs: any): Promise<void> {
