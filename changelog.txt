@@ -8,6 +8,10 @@ Legend
 + : added
 - : removed
 
+2025-10-01 v3.4.2
+-------------------
+! choices re order based on default value in search inquirer
+
 2025-09-24 v3.4.1
 -------------------
 + saprouter inquirer default to null
