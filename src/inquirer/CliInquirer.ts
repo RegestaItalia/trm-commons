@@ -30,8 +30,13 @@ export class CliInquirer implements IInquirer {
             if(question.type === 'list'){ // deprecated
                 question.type = 'search';
                 if(!question.source){
-                    question.source = async() : Promise<any[]> => {
-                        return question.choices || [];
+                    question.source = async(input) : Promise<any[]> => {
+                        const choices = (question.choices || []);
+                        if(input){
+                            return choices.filter(o => o.name ? o.name.toUpperCase().includes(input.toUpperCase()) : o.value.toUpperCase().includes(input.toUpperCase()));
+                        }else{
+                            return choices;
+                        }
                     };
                 }
             }
