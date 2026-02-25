@@ -3,12 +3,10 @@ import { ILogger } from "./ILogger";
 import { TreeLog } from "./TreeLog";
 
 export class ConsoleLogger implements ILogger {
-
-    debug: boolean;
     
     private _prefix: string = '';
 
-    constructor(debug: boolean) { }
+    constructor(public readonly debug: boolean) { }
 
     public loading(text: string, debug?: boolean): void {
         if (debug && !this.debug) {

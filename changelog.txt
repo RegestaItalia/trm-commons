@@ -8,6 +8,10 @@ Legend
 + : added
 - : removed
 
+2026-02-25 v3.5.1
+-------------------
+* logger debug
+
 2026-02-17 v3.5.0
 -------------------
 ! version update

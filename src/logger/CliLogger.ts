@@ -8,13 +8,11 @@ import chalk from "chalk";
 
 export class CliLogger implements ILogger {
 
-    debug: boolean;
-
     private _cliObj: Loading;
     private _loader: Loading;
     private _prefix: string = '';
 
-    constructor(debug: boolean) {
+    constructor(public readonly debug: boolean) {
         this._cliObj = cliLogger({
             frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
             interval: 200
