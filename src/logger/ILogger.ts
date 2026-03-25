@@ -7,6 +7,7 @@ export interface ILogger {
     removePrefix: () => void,
     getPrefix: () => string,
     loading: (text: string, debug?: boolean) => void,
+    forceStop: () => void,
     success: (text: string, debug?: boolean) => void,
     error: (text: string, debug?: boolean) => void,
     warning: (text: string, debug?: boolean) => void,

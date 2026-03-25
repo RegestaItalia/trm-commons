@@ -115,4 +115,6 @@ export class ConsoleLogger implements ILogger {
         }
     }
 
+    public forceStop: () => void;
+
 }
