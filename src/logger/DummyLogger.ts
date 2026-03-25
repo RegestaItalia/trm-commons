@@ -36,4 +36,6 @@ export class DummyLogger implements ILogger {
     
     public msgty(msgty: string, text: string, debug?: boolean){ }
 
+    public forceStop(): void { }
+
 }
