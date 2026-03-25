@@ -105,7 +105,6 @@ export class CliLogFileLogger extends CliLogger {
     }
 
     public forceStop(): void {
-        this.log(`Forcing loader stop.`, true);
         super.forceStop();
     }
 

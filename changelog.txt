@@ -8,6 +8,10 @@ Legend
 + : added
 - : removed
 
+2026-02-25 v3.7.0
+-------------------
+! forceStop fix in cli log file
+
 2026-02-25 v3.6.0
 -------------------
 ! forceStop logger
