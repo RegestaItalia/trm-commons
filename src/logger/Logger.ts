@@ -87,4 +87,9 @@ export namespace Logger {
         return logger.msgty(msgty, text, debug);
     }
 
+    export function forceStop(): void {
+        checkLogger();
+        return logger.forceStop();
+    }
+
 }
