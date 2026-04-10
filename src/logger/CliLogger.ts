@@ -10,6 +10,7 @@ export class CliLogger implements ILogger {
 
     private _cliObj: Loading;
     private _loader: Loading;
+    private _lastLoadingMessage: string;
     private _prefix: string = '';
 
     constructor(public readonly debug: boolean) {
@@ -23,7 +24,11 @@ export class CliLogger implements ILogger {
         if (debug && !this.debug) {
             return;
         }
+        if(this._lastLoadingMessage === text){
+            return;
+        }
         this._loader = this._cliObj.render().start(this._prefix + text);
+        this._lastLoadingMessage = text;
     }
 
     public success(text: string, debug?: boolean) {
