@@ -13,7 +13,7 @@ export class CliLogFileLogger extends CliLogger {
 
     constructor(private _dir: string, debug?: boolean) {
         super(debug);
-        if(!existsSync(this._dir)){
+        if (!existsSync(this._dir)) {
             mkdirSync(this._dir, {
                 recursive: true
             });
@@ -29,14 +29,14 @@ export class CliLogFileLogger extends CliLogger {
 
     private _getStackTrace(): string {
         var sStackTrace: string;
-        try{
+        try {
             const aStackTrace = getStackTrace();
             const oStackTrace = aStackTrace[5];
 
             //extract trm-module
             const moduleName = /(trm-[^\\\/]*)(?:\\{1,2}|\/{1,2})dist/gmi.exec(oStackTrace.fileName)[1];
             sStackTrace = `[${moduleName}] ${oStackTrace.functionName} ${oStackTrace.lineNumber},${oStackTrace.columnNumber}`;
-        }catch(e){
+        } catch (e) {
             sStackTrace = ``;
         }
         return sStackTrace;
@@ -51,7 +51,7 @@ export class CliLogFileLogger extends CliLogger {
         appendFileSync(this.getFilePath(), `\n${this._getDebugString(text, type)}`);
     }
 
-    public endLog(){
+    public endLog() {
         appendFileSync(this.getFilePath(), `\n*** ENDING LOG SESSION ID ${this._sessionId}, ${new Date().toISOString()} ***`);
     }
 
@@ -102,10 +102,6 @@ export class CliLogFileLogger extends CliLogger {
     public tree(data: TreeLog, debug?: boolean) {
         this._append(`${JSON.stringify(data)}`, 'TREE');
         super.tree(data, debug);
-    }
-
-    public forceStop(): void {
-        super.forceStop();
     }
 
 }

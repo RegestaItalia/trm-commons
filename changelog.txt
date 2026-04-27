@@ -8,6 +8,10 @@ Legend
 + : added
 - : removed
 
+2026-04-27 v4.0.0
+-------------------
++ logger progress bar
+
 2026-04-10 v3.7.1
 -------------------
 + loading extra guard

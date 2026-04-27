@@ -5,6 +5,9 @@ import { ILogger } from "./ILogger";
 import { TreeLog } from "./TreeLog";
 import * as printTree from "print-tree";
 import chalk from "chalk";
+import { ILoggerProgressbar } from "./ILoggerProgressbar";
+import * as cliProgress from "cli-progress";
+import { ILoggerMultibar } from "./ILoggerMultibar";
 
 export class CliLogger implements ILogger {
 
@@ -24,7 +27,7 @@ export class CliLogger implements ILogger {
         if (debug && !this.debug) {
             return;
         }
-        if(this._lastLoadingMessage === text){
+        if (this._lastLoadingMessage === text) {
             return;
         }
         this._loader = this._cliObj.render().start(this._prefix + text);
@@ -115,10 +118,12 @@ export class CliLogger implements ILogger {
         }
         var table = new cliTable({
             head: header,
-            chars: { 'top': '═' , 'top-mid': '╤' , 'top-left': '╔' , 'top-right': '╗'
-                , 'bottom': '═' , 'bottom-mid': '╧' , 'bottom-left': '╚' , 'bottom-right': '╝'
-                , 'left': '║' , 'left-mid': '╟' , 'mid': '─' , 'mid-mid': '┼'
-                , 'right': '║' , 'right-mid': '╢' , 'middle': '│' }
+            chars: {
+                'top': '═', 'top-mid': '╤', 'top-left': '╔', 'top-right': '╗'
+                , 'bottom': '═', 'bottom-mid': '╧', 'bottom-left': '╚', 'bottom-right': '╝'
+                , 'left': '║', 'left-mid': '╟', 'mid': '─', 'mid-mid': '┼'
+                , 'right': '║', 'right-mid': '╢', 'middle': '│'
+            }
             //colWidths: [300, 50]
         });
         data.forEach(arr => {
@@ -148,9 +153,11 @@ export class CliLogger implements ILogger {
         }
         const _parseBranch = (o: TreeLog) => {
             var children = [];
-            o.children.forEach(k => {
-                children.push(_parseBranch(k));
-            });
+            if (o.children) {
+                o.children.forEach(k => {
+                    children.push(_parseBranch(k));
+                });
+            }
             return {
                 name: o.text,
                 children
@@ -192,8 +199,8 @@ export class CliLogger implements ILogger {
         return this._prefix;
     }
 
-    public msgty(msgty: string, text: string, debug?: boolean){
-        switch(msgty){
+    public msgty(msgty: string, text: string, debug?: boolean) {
+        switch (msgty) {
             case 'A':
                 this.error(text, debug);
                 break;
@@ -209,6 +216,58 @@ export class CliLogger implements ILogger {
             case 'W':
                 this.warning(text, debug);
                 break;
+        }
+    }
+
+    public progressbar(format: string, glue: string): ILoggerProgressbar {
+        const that = this;
+        const bar = new cliProgress.SingleBar({
+            clearOnComplete: true,
+            hideCursor: true,
+            barGlue: glue,
+            format
+        }, cliProgress.Presets.legacy);
+        return {
+            start(total: number, value: number, payload?: any) {
+                that.forceStop();
+                bar.start(total, value, payload);
+            },
+            stop() {
+                bar.stop();
+            },
+            update(value: number, payload?: any) {
+                bar.update(value, payload);
+            }
+        }
+    }
+
+    public multibar(format: string, glue: string): ILoggerMultibar {
+        const that = this;
+        const multibar = new cliProgress.MultiBar({
+            clearOnComplete: true,
+            hideCursor: true,
+            barGlue: glue,
+            format
+        }, cliProgress.Presets.legacy);
+        return {
+            create(total: number, startValue: number, payload?: any): ILoggerProgressbar {
+                that.forceStop();
+                const bar = multibar.create(total, startValue, payload);
+                return {
+                    start(total: number, value: number, payload?: any) {
+                        bar.start(total, value, payload);
+                    },
+                    stop() {
+                        bar.stop();
+                    },
+                    update(value: number, payload?: any) {
+                        bar.update(value, payload);
+                    }
+                }
+            },
+            stop() {
+                multibar.stop();
+            }
         }
     }
 

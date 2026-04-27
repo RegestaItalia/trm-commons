@@ -1,5 +1,7 @@
 import { ResponseMessage } from "trm-registry-types";
 import { TreeLog } from "./TreeLog";
+import { ILoggerMultibar } from "./ILoggerMultibar";
+import { ILoggerProgressbar } from "./ILoggerProgressbar";
 
 export interface ILogger {
     debug: boolean,
@@ -16,5 +18,7 @@ export interface ILogger {
     table: (header: string[], data: string[][], debug?: boolean) => void,
     registryResponse: (response: ResponseMessage, debug?: boolean) => void,
     tree: (data: TreeLog, debug?: boolean) => void,
-    msgty: (msgty: string, text: string, debug?: boolean) => void
+    msgty: (msgty: string, text: string, debug?: boolean) => void,
+    progressbar: (format: string, glue: string) => ILoggerProgressbar,
+    multibar: (format: string, glue: string) => ILoggerMultibar
 }

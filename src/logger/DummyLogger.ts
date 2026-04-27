@@ -1,6 +1,8 @@
 import { ResponseMessage } from "trm-registry-types";
 import { ILogger } from "./ILogger";
 import { TreeLog } from "./TreeLog";
+import { ILoggerProgressbar } from "./ILoggerProgressbar";
+import { ILoggerMultibar } from "./ILoggerMultibar";
 
 export class DummyLogger implements ILogger {
 
@@ -30,12 +32,47 @@ export class DummyLogger implements ILogger {
 
     public removePrefix(): void { }
 
-    public getPrefix(): string { 
+    public getPrefix(): string {
         return '';
     }
-    
-    public msgty(msgty: string, text: string, debug?: boolean){ }
+
+    public msgty(msgty: string, text: string, debug?: boolean) { }
 
     public forceStop(): void { }
+
+    public progressbar(format: string, glue: string): ILoggerProgressbar {
+        return {
+            start(total: number, value: number, payload?: any) {
+                return;
+            },
+            stop() {
+                return;
+            },
+            update(value: number, payload?: any) {
+                return;
+            }
+        }
+    }
+
+    public multibar(format: string, glue: string): ILoggerMultibar {
+        return {
+            create(total: number, startValue: number, payload?: any): ILoggerProgressbar {
+                return {
+                    start(total: number, value: number, payload?: any) {
+                        return;
+                    },
+                    stop() {
+                        return;
+                    },
+                    update(value: number, payload?: any) {
+                        return;
+                    }
+                }
+            },
+            stop() {
+                return;
+            }
+        }
+    }
 
 }

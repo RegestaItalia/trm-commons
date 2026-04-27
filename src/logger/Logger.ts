@@ -4,6 +4,8 @@ import { DummyLogger } from "./DummyLogger";
 import { TreeLog } from "./TreeLog";
 import { InspectOptions } from "util";
 import { inspect as utilInspect } from "util";
+import { ILoggerProgressbar } from "./ILoggerProgressbar";
+import { ILoggerMultibar } from "./ILoggerMultibar";
 
 export function inspect(object: any, options?: InspectOptions): string {
     var sInspect = utilInspect(object, options);
@@ -90,6 +92,16 @@ export namespace Logger {
     export function forceStop(): void {
         checkLogger();
         return logger.forceStop();
+    }
+
+    export function progressbar(format: string, glue: string): ILoggerProgressbar {
+        checkLogger();
+        return logger.progressbar(format, glue);
+    }
+    
+    export function multibar(format: string, glue: string): ILoggerMultibar {
+        checkLogger();
+        return logger.multibar(format, glue);
     }
 
 }

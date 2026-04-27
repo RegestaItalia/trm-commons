@@ -1,5 +1,7 @@
 export * from "./CliLogger";
 export * from "./ILogger";
+export * from "./ILoggerProgressbar";
+export * from "./ILoggerMultibar";
 export * from "./JSONLog";
 export * from "./TreeLog";
 export * from "./Logger";

@@ -1,9 +1,11 @@
 import { MessageType, ResponseMessage } from "trm-registry-types";
 import { ILogger } from "./ILogger";
 import { TreeLog } from "./TreeLog";
+import { ILoggerProgressbar } from "./ILoggerProgressbar";
+import { ILoggerMultibar } from "./ILoggerMultibar";
 
 export class ConsoleLogger implements ILogger {
-    
+
     private _prefix: string = '';
 
     constructor(public readonly debug: boolean) { }
@@ -94,9 +96,9 @@ export class ConsoleLogger implements ILogger {
     public getPrefix(): string {
         return this._prefix;
     }
-    
-    public msgty(msgty: string, text: string, debug?: boolean){
-        switch(msgty){
+
+    public msgty(msgty: string, text: string, debug?: boolean) {
+        switch (msgty) {
             case 'A':
                 this.error(text, debug);
                 break;
@@ -115,6 +117,47 @@ export class ConsoleLogger implements ILogger {
         }
     }
 
-    public forceStop: () => void;
+    public forceStop(): string {
+        return;
+    }
+
+    public progressbar(format: string, glue: string): ILoggerProgressbar {
+        var barTotal;
+        return {
+            start(total: number, value: number, payload?: any) {
+                barTotal = total;
+                console.log(`${value}/${total}${payload ? ' ' + JSON.stringify(payload) : ''}`);
+            },
+            stop() {
+                return;
+            },
+            update(value: number, payload?: any) {
+                console.log(`${value}/${barTotal}${payload ? ' ' + JSON.stringify(payload) : ''}`);
+            }
+        }
+    }
+
+    public multibar(format: string, glue: string): ILoggerMultibar {
+        return {
+            create(total: number, startValue: number, payload?: any): ILoggerProgressbar {
+                var barTotal = total;
+                return {
+                    start(total: number, value: number, payload?: any) {
+                        barTotal = total;
+                        console.log(`${value}/${total}${payload ? ' ' + JSON.stringify(payload) : ''}`);
+                    },
+                    stop() {
+                        return;
+                    },
+                    update(value: number, payload?: any) {
+                        console.log(`${value}/${barTotal}${payload ? ' ' + JSON.stringify(payload) : ''}`);
+                    }
+                }
+            },
+            stop() {
+                return;
+            }
+        }
+    }
 
 }
