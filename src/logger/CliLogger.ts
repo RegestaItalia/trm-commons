@@ -1,4 +1,4 @@
-import cliLogger, { Loading } from "loading-cli";
+import loadingCli from "loading-cli";
 import cliTable from "cli-table3";
 import { MessageType, ResponseMessage } from "trm-registry-types";
 import { ILogger } from "./ILogger";
@@ -11,27 +11,33 @@ import { ILoggerMultibar } from "./ILoggerMultibar";
 
 export class CliLogger implements ILogger {
 
-    private _cliObj: Loading;
-    private _loader: Loading;
-    private _lastLoadingMessage: string;
+    private _loader: loadingCli.Loading;
     private _prefix: string = '';
 
     constructor(public readonly debug: boolean) {
-        this._cliObj = cliLogger({
-            frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
-            interval: 200
-        });
     }
 
     public loading(text: string, debug?: boolean) {
         if (debug && !this.debug) {
             return;
         }
-        if (this._lastLoadingMessage === text) {
-            return;
+        
+        const max = (process.stderr.columns || 80) - 4;
+        const fit = (this._prefix + text).length > max ? (this._prefix + text).slice(0, max - 1) + '…' : (this._prefix + text);
+
+        if (this._loader) {
+            if (this._loader.text === text) {
+                return;
+            }else{
+                this._loader.stop();
+            }
         }
-        this._loader = this._cliObj.render().start(this._prefix + text);
-        this._lastLoadingMessage = text;
+
+        this._loader = loadingCli({
+            text: fit,
+            frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
+            interval: 150
+        }).start();
     }
 
     public success(text: string, debug?: boolean) {
@@ -42,10 +48,9 @@ export class CliLogger implements ILogger {
         aText.forEach(s => {
             s = chalk.green(this._prefix + s);
             if (this._loader) {
-                this._loader.succeed(s);
-                this._clearLoader();
+                this._loader.render().succeed(s);
             } else {
-                this._cliObj.succeed(s);
+                loadingCli().render().succeed(s);
             }
         });
     }
@@ -58,10 +63,9 @@ export class CliLogger implements ILogger {
         aText.forEach(s => {
             s = chalk.red(this._prefix + s);
             if (this._loader) {
-                this._loader.fail(s);
-                this._clearLoader();
+                this._loader.render().fail(s);
             } else {
-                this._cliObj.fail(s);
+                loadingCli().render().fail(s);
             }
         });
     }
@@ -74,10 +78,9 @@ export class CliLogger implements ILogger {
         aText.forEach(s => {
             s = chalk.yellow(this._prefix + s);
             if (this._loader) {
-                this._loader.warn(s);
-                this._clearLoader();
+                this._loader.render().warn(s);
             } else {
-                this._cliObj.warn(s);
+                loadingCli().render().warn(s);
             }
         });
     }
@@ -90,10 +93,9 @@ export class CliLogger implements ILogger {
         aText.forEach(s => {
             s = this._prefix + s;
             if (this._loader) {
-                this._loader.info(s);
-                this._clearLoader();
+                this._loader.render().info(s);
             } else {
-                this._cliObj.info(s);
+                loadingCli().render().info(s);
             }
         });
     }
@@ -129,6 +131,7 @@ export class CliLogger implements ILogger {
         data.forEach(arr => {
             table.push(arr);
         });
+        this.forceStop();
         console.log(this._prefix + table.toString());
     }
 
@@ -179,12 +182,7 @@ export class CliLogger implements ILogger {
     public forceStop(): void {
         try {
             this._loader.stop();
-            this._clearLoader();
         } catch (e) { }
-    }
-
-    private _clearLoader(): void {
-        delete this._loader;
     }
 
     public setPrefix(text: string): void {
