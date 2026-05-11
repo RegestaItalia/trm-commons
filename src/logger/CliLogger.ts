@@ -17,6 +17,14 @@ export class CliLogger implements ILogger {
     constructor(public readonly debug: boolean) {
     }
 
+    private getLoadingCliInstance(text: string): loadingCli.Loading {
+        return loadingCli({
+            text: text,
+            frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
+            interval: 150
+        });
+    }
+
     public loading(text: string, debug?: boolean) {
         if (debug && !this.debug) {
             return;
@@ -33,11 +41,7 @@ export class CliLogger implements ILogger {
             }
         }
 
-        this._loader = loadingCli({
-            text: fit,
-            frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
-            interval: 150
-        }).start();
+        this._loader = this.getLoadingCliInstance(fit).start();
     }
 
     public success(text: string, debug?: boolean) {
@@ -50,7 +54,7 @@ export class CliLogger implements ILogger {
             if (this._loader) {
                 this._loader.render().succeed(s);
             } else {
-                loadingCli().render().succeed(s);
+                this.getLoadingCliInstance(s).succeed(s);
             }
         });
     }
@@ -65,7 +69,7 @@ export class CliLogger implements ILogger {
             if (this._loader) {
                 this._loader.render().fail(s);
             } else {
-                loadingCli().render().fail(s);
+                this.getLoadingCliInstance(s).fail(s);
             }
         });
     }
@@ -80,7 +84,7 @@ export class CliLogger implements ILogger {
             if (this._loader) {
                 this._loader.render().warn(s);
             } else {
-                loadingCli().render().warn(s);
+                this.getLoadingCliInstance(s).warn(s);
             }
         });
     }
@@ -95,7 +99,7 @@ export class CliLogger implements ILogger {
             if (this._loader) {
                 this._loader.render().info(s);
             } else {
-                loadingCli().render().info(s);
+                this.getLoadingCliInstance(s).info(s);
             }
         });
     }
