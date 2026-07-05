@@ -1,6 +1,6 @@
 {
   "name": "trm-commons",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "TRM (Transport Request Manager) Shared library",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -50,7 +50,6 @@
     "inquirer-select-pro": "^1.0.0-alpha.9",
     "loading-cli": "^1.1.2",
     "print-tree": "^0.1.5",
-    "trm-registry-types": "^1.2.0",
-    "uuid": "^14.0.0"
+    "trm-registry-types": "^1.2.0"
   }
 }

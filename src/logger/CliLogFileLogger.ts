@@ -1,7 +1,7 @@
 import { ResponseMessage } from "trm-registry-types";
 import { CliLogger } from "./CliLogger";
 import { appendFileSync, existsSync, mkdirSync, writeFileSync } from "fs";
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from "crypto";
 import { join } from "path";
 import { getStackTrace } from "get-stack-trace";
 import { TreeLog } from "./TreeLog";
@@ -18,7 +18,7 @@ export class CliLogFileLogger extends CliLogger {
                 recursive: true
             });
         }
-        this._sessionId = uuidv4();
+        this._sessionId = randomUUID();
         this._filePath = join(this._dir, `${this._sessionId}.txt`);
         writeFileSync(this.getFilePath(), `*** STARTING LOG SESSION ID ${this._sessionId}, ${new Date().toISOString()} ***`);
     }
