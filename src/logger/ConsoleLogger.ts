@@ -4,10 +4,19 @@ import { TreeLog } from "./TreeLog";
 import { ILoggerProgressbar } from "./ILoggerProgressbar";
 import { ILoggerMultibar } from "./ILoggerMultibar";
 
+/**
+ * Plain {@link ILogger} writing to the console, without colors or animations.
+ * Suitable for non-interactive environments (e.g. CI pipelines).
+ *
+ * Tables and trees are printed as JSON, progress bars as `value/total` lines.
+ */
 export class ConsoleLogger implements ILogger {
 
     private _prefix: string = '';
 
+    /**
+     * @param debug print messages flagged as debug
+     */
     constructor(public readonly debug: boolean) { }
 
     public loading(text: string, debug?: boolean): void {
