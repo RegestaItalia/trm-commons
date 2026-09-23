@@ -9,11 +9,17 @@ import { ILoggerProgressbar } from "./ILoggerProgressbar";
 import * as cliProgress from "cli-progress";
 import { ILoggerMultibar } from "./ILoggerMultibar";
 
+/**
+ * Interactive terminal {@link ILogger}, with colored output, spinners, tables, trees and progress bars.
+ */
 export class CliLogger implements ILogger {
 
     private _loader: loadingCli.Loading;
     private _prefix: string = '';
 
+    /**
+     * @param debug print messages flagged as debug
+     */
     constructor(public readonly debug: boolean) {
     }
 

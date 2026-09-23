@@ -6,11 +6,22 @@ import { join } from "path";
 import { getStackTrace } from "get-stack-trace";
 import { TreeLog } from "./TreeLog";
 
+/**
+ * {@link CliLogger} that also appends every message to a log file, including debug messages.
+ *
+ * Each instance is a log session, with its own file named `<sessionId>.txt`.
+ * Call {@link CliLogFileLogger.endLog} when done to mark the end of the session.
+ */
 export class CliLogFileLogger extends CliLogger {
 
     private _filePath: string;
     private _sessionId: string;
 
+    /**
+     * Creates the log directory (if missing) and a new log file.
+     * @param _dir directory where the log file is written
+     * @param debug print messages flagged as debug to the terminal (they are always written to file)
+     */
     constructor(private _dir: string, debug?: boolean) {
         super(debug);
         if (!existsSync(this._dir)) {
@@ -23,6 +34,9 @@ export class CliLogFileLogger extends CliLogger {
         writeFileSync(this.getFilePath(), `*** STARTING LOG SESSION ID ${this._sessionId}, ${new Date().toISOString()} ***`);
     }
 
+    /**
+     * Returns the ID of this log session, which is also the log file name.
+     */
     public getSessionId(): string {
         return this._sessionId;
     }
@@ -51,10 +65,16 @@ export class CliLogFileLogger extends CliLogger {
         appendFileSync(this.getFilePath(), `\n${this._getDebugString(text, type)}`);
     }
 
+    /**
+     * Writes the end of session marker to the log file.
+     */
     public endLog() {
         appendFileSync(this.getFilePath(), `\n*** ENDING LOG SESSION ID ${this._sessionId}, ${new Date().toISOString()} ***`);
     }
 
+    /**
+     * Returns the absolute path of the log file.
+     */
     public getFilePath(): string {
         return this._filePath;
     }

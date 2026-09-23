@@ -2,6 +2,12 @@ import { IConnect } from ".";
 import { Inquirer } from "../inquirer";
 import { Logger } from "../logger";
 
+/**
+ * Connection to an SAP system through RFC (node-rfc).
+ *
+ * Connection data: `dest` (system ID), `ashost`, `sysnr`, `saprouter` (optional),
+ * `client`, `user`, `passwd`, `lang`.
+ */
 export class RFCConnect implements IConnect {
 
     name = 'RFC';

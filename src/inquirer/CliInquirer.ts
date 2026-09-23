@@ -4,6 +4,11 @@ import { IInquirer } from "./IInquirer";
 import * as cliInquirer from '@inquirer/prompts';
 import { select as selectPro } from 'inquirer-select-pro';
 
+/**
+ * Interactive terminal {@link IInquirer}, based on `@inquirer/prompts` and `inquirer-select-pro`.
+ *
+ * Stops the loader of a {@link CliLogger} before prompting, so the two don't overlap.
+ */
 export class CliInquirer implements IInquirer {
 
     private _prefix: string = '';
@@ -44,31 +49,32 @@ export class CliInquirer implements IInquirer {
                     };
                 }
             }
-            if(cliInquirer[question.type]){
-                var prompt: boolean;
-                if(question.when === undefined){
-                    prompt = true;
-                }else if(typeof(question.when) === 'boolean'){
-                    prompt = question.when;
-                }else {
-                    prompt = await question.when(hash);
-                }
-                if(prompt){
-                    question.message = this._prefix + question.message;
-                    oResponse = await cliInquirer[question.type](question as any);
-                    hash[question.name] = oResponse;
-                }
-            }else if((question.type as any) === 'inquirer-select-pro'){
-                oResponse = await selectPro({
-                    message: question.message,
-                    validate: question.validate,
-                    options: question.choices,
-                    filter: question.filter,
-                    required: question.required
-                });
-                hash[question.name] = oResponse;
-            }else{
+            const isSelectPro = (question.type as any) === 'inquirer-select-pro';
+            if(!cliInquirer[question.type] && !isSelectPro){
                 throw new Error(`Unknown CLI inquirer type "${question.type}".`);
+            }
+            var prompt: boolean;
+            if(question.when === undefined){
+                prompt = true;
+            }else if(typeof(question.when) === 'boolean'){
+                prompt = question.when;
+            }else {
+                prompt = await question.when(hash);
+            }
+            if(prompt){
+                question.message = this._prefix + question.message;
+                if(isSelectPro){
+                    oResponse = await selectPro({
+                        message: question.message,
+                        validate: question.validate,
+                        options: question.choices,
+                        filter: question.filter,
+                        required: question.required
+                    });
+                }else{
+                    oResponse = await cliInquirer[question.type](question as any);
+                }
+                hash[question.name] = oResponse;
             }
         }
         return hash;

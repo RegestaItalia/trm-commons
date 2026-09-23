@@ -15,16 +15,37 @@ type Registered = {
   modulePriority: number;
 };
 
+/**
+ * Options for {@link Plugin.load}.
+ */
 export type LoadOptions = {
+  /**
+   * timeout in milliseconds for handlers that don't set their own (default `3000`)
+   */
   defaultHandlerTimeoutMs?: number;
+  /**
+   * global `node_modules` path to search for plugins (default: output of `npm root -g`)
+   */
   globalNodeModulesPath?: string;
 };
 
+/**
+ * A loaded plugin package.
+ */
 export type PluginModule = {
+  /**
+   * package name (e.g. `trm-plugin-example` or `@scope/trm-plugin-example`)
+   */
   name: string,
+  /**
+   * absolute path of the package directory
+   */
   location: string
 }
 
+/**
+ * Discovers `trm-plugin-*` packages, loads them and dispatches events to their handlers.
+ */
 class PluginManager {
   private _loaded = false;
   private _loadingPromise: Promise<void> | null = null;
@@ -40,6 +61,11 @@ class PluginManager {
     };
   }
 
+  /**
+   * Searches the nearest local `node_modules` and the global one for `trm-plugin-*` packages
+   * (scoped too) and registers their handlers. Runs only once, concurrent calls share the same load.
+   * Packages that fail to load are skipped.
+   */
   async load(): Promise<void> {
     if (this._loaded) return;
     if (this._loadingPromise) {
@@ -54,17 +80,16 @@ class PluginManager {
       for (const [name, abs] of found) {
         try {
           const entry = this.resolveMain(abs);
-          let loaded: any;
-
+          let mod: any;
           try {
-            loaded = await import(pathToFileURL(entry).href);
-            if (loaded?.default) loaded = loaded.default;
+            mod = await import(pathToFileURL(entry).href);
           } catch {
-            loaded = require(abs);
-            if (loaded?.default) loaded = loaded.default;
+            mod = require(abs);
           }
+          const loaded = mod?.default ?? mod;
 
-          const moduleMeta = (typeof loaded === "object" && loaded?.meta) ? loaded.meta : {};
+          // meta can be a named export or a property of the default export
+          const moduleMeta = mod?.meta ?? loaded?.meta ?? {};
           const modulePriority = Number(moduleMeta?.priority ?? 100) || 100;
 
           if (typeof loaded === "function") {
@@ -105,6 +130,13 @@ class PluginManager {
     return this.plugins;
   }
 
+  /**
+   * Runs the handlers registered for an event, in priority order, chaining the payload.
+   * @param event event name
+   * @param source TRM layer that raises the event
+   * @param payload initial event data
+   * @returns the payload returned by the last handler that returned one, otherwise the initial payload
+   */
   async call<Payload>(event: string, source: PluginCtx, payload: Payload): Promise<Payload> {
     const ctx: PluginContext = { source, event };
     let current = payload;
@@ -189,9 +221,20 @@ class PluginManager {
   }
 }
 
+/**
+ * Global plugin manager, shared by all TRM modules.
+ *
+ * Plugins are npm packages named `trm-plugin-*` (scoped packages too), installed locally or globally,
+ * whose default export is a {@link PluginRegisterFn}.
+ */
 export namespace Plugin {
     var manager: PluginManager = null;
-    
+
+    /**
+     * Loads plugins. Only the first call does the work, later calls return the plugins already loaded.
+     * @param opts load options, used only on the first call
+     * @returns loaded plugins
+     */
     export async function load(opts?: LoadOptions): Promise<PluginModule[]> {
       if(!manager){
         manager = new PluginManager(opts);
@@ -200,6 +243,14 @@ export namespace Plugin {
       return manager.getLoadedPlugins();
     }
 
+    /**
+     * Raises an event: runs the handlers registered for it, in priority order, chaining the payload.
+     * Loads plugins with default options if {@link Plugin.load} wasn't called yet.
+     * @param source TRM layer raising the event
+     * @param event event name
+     * @param payload event data
+     * @returns the payload, possibly modified by handlers
+     */
     export async function call<Payload>(source: PluginCtx, event: string, payload: Payload): Promise<Payload> {
       if(!manager){
         await load();

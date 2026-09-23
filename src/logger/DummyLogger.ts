@@ -4,6 +4,9 @@ import { TreeLog } from "./TreeLog";
 import { ILoggerProgressbar } from "./ILoggerProgressbar";
 import { ILoggerMultibar } from "./ILoggerMultibar";
 
+/**
+ * {@link ILogger} that discards every message. Default logger of {@link Logger}.
+ */
 export class DummyLogger implements ILogger {
 
     debug: boolean;

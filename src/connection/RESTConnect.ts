@@ -3,6 +3,12 @@ import normalizeUrl from "@esm2cjs/normalize-url";
 import { Inquirer } from "../inquirer";
 import { Logger } from "../logger";
 
+/**
+ * Connection to an SAP system through the trm-rest HTTP service.
+ *
+ * Connection data: `endpoint`, `rfcdest` (forward RFC destination, defaults to `NONE`),
+ * `client`, `user`, `passwd`, `lang`.
+ */
 export class RESTConnect implements IConnect {
 
     name = 'REST';
@@ -12,7 +18,10 @@ export class RESTConnect implements IConnect {
     private _connData: any;
 
     public async onConnectionData(force: boolean, commandArgs: any): Promise<void> {
-        this._connData = await Inquirer.prompt([{
+        // forwardRfcDest provided (string) = use it, otherwise prompt (default saved rfcdest or NONE)
+        const forwardRfcDest = commandArgs.forwardRfcDest;
+        const presetRfcDest: string = typeof forwardRfcDest === 'string' && forwardRfcDest.trim() ? forwardRfcDest : (commandArgs.rfcdest || 'NONE');
+        const answers = await Inquirer.prompt([{
             type: `input`,
             name: `endpoint`,
             message: `System endpoint`,
@@ -22,13 +31,17 @@ export class RESTConnect implements IConnect {
             }
         }, {
             type: `input`,
-            name: `forwardRfcDest`,
+            name: `rfcdest`,
             message: `Forward RFC Destination`,
-            default: commandArgs.forwardRfcDest || 'NONE',
+            default: presetRfcDest,
             when: (hash) => {
-                return commandArgs.forwardRfcDest || force; //only show when in arguments or forced
+                return !(typeof forwardRfcDest === 'string' && forwardRfcDest.trim()) || force;
             }
         }]);
+        this._connData = {
+            ...answers,
+            rfcdest: (answers.rfcdest || presetRfcDest).trim().toUpperCase() || 'NONE'
+        };
     }
 
     public async onAfterLoginData(force: boolean, commandArgs: any): Promise<void> {
