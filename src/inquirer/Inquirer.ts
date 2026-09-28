@@ -60,4 +60,12 @@ export namespace Inquirer {
         checkInquirer();
         return inquirer.getPrefix();
     }
+
+    /**
+     * Tells if {@link Inquirer.inquirer} is a UI client, able to render {@link Question.ui} and {@link Question.valueHelp}.
+     * @returns `false` if {@link Inquirer.inquirer} is not set
+     */
+    export function isUi(): boolean {
+        return inquirer?.isUi?.() === true;
+    }
 }

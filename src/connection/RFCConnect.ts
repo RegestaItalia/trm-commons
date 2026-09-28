@@ -36,7 +36,7 @@ export class RFCConnect implements IConnect {
             type: `input`,
             name: `dest`,
             message: `System ID`,
-            default: commandArgs.dest,
+            default: typeof commandArgs.dest === 'string' ? commandArgs.dest.toUpperCase() : commandArgs.dest,
             when: (hash) => {
                 return (commandArgs.dest ? false : true) || force;
             },
@@ -71,6 +71,9 @@ export class RFCConnect implements IConnect {
                 return (commandArgs.saprouter ? false : true) || force;
             }
         }]);
+        if (typeof this._connData.dest === 'string') {
+            this._connData.dest = this._connData.dest.toUpperCase();
+        }
         if(this._connData.saprouter && !this._connData.saprouter.trim()){
             this._connData.saprouter = undefined; //force back to empty (cases where it's blank string)
         }
@@ -78,6 +81,9 @@ export class RFCConnect implements IConnect {
 
     public async onAfterLoginData(force: boolean, commandArgs: any): Promise<void> {
         this._connData = { ...commandArgs, ...this._connData };
+        if (typeof this._connData.dest === 'string') {
+            this._connData.dest = this._connData.dest.toUpperCase();
+        }
         if(this._connData.user){
             this._connData.user = this._connData.user.toUpperCase();
         }

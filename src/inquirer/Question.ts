@@ -1,3 +1,6 @@
+import { ValueHelp } from "../valueHelp";
+import { QuestionUi } from "./QuestionUi";
+
 /**
  * A question to ask with {@link IInquirer.prompt}.
  */
@@ -49,5 +52,13 @@ export type Question = {
     /**
      * `search` only: returns the choices matching the text typed by the user
      */
-    source?: (term: string | void) => Promise<any[]>
+    source?: (term: string | void) => Promise<any[]>,
+    /**
+     * widget rendered by UI clients: set it only when {@link Inquirer.isUi} is `true`
+     */
+    ui?: QuestionUi,
+    /**
+     * `input` only: list of suggested values, used by UI clients
+     */
+    valueHelp?: ValueHelp
 }

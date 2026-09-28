@@ -13,7 +13,10 @@ export class CliInquirer implements IInquirer {
 
     private _prefix: string = '';
 
-    constructor() { }
+    /**
+     * @param _ui `true` if used by a UI client (see {@link Inquirer.isUi})
+     */
+    constructor(private readonly _ui: boolean = false) { }
 
     public async prompt(arg1: Question | Question[]): Promise<any> {
         if(Logger.logger instanceof CliLogger || Logger.logger instanceof CliLogFileLogger){
@@ -72,7 +75,8 @@ export class CliInquirer implements IInquirer {
                         required: question.required
                     });
                 }else{
-                    oResponse = await cliInquirer[question.type](question as any);
+                    const { ui, valueHelp, ...cliQuestion } = question;
+                    oResponse = await cliInquirer[question.type](cliQuestion as any);
                 }
                 hash[question.name] = oResponse;
             }
@@ -90,5 +94,9 @@ export class CliInquirer implements IInquirer {
 
     public getPrefix(): string {
         return this._prefix;
+    }
+
+    public isUi(): boolean {
+        return this._ui;
     }
 }
