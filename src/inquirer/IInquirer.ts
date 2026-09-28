@@ -22,5 +22,9 @@ export interface IInquirer {
     /**
      * Returns the current prefix, or an empty string if none is set.
      */
-    getPrefix: () => string
+    getPrefix: () => string,
+    /**
+     * Returns `true` if the inquirer is a UI client, able to render {@link Question.ui} and {@link Question.valueHelp}.
+     */
+    isUi?: () => boolean
 }
