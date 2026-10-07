@@ -81,12 +81,23 @@ export type QuestionUiTags = {
 };
 
 /**
+ * Markdown editor with preview: the answer is a string.
+ */
+export type QuestionUiMarkdown = {
+    kind: 'markdown',
+    /**
+     * initial text
+     */
+    value?: string
+};
+
+/**
  * Widget a UI client renders in place of the question type.
  *
  * Only UI clients handle it (see {@link Inquirer.isUi}): questions with it must be asked only when the inquirer is a UI.
  * The answer is the structured value of the widget, not the value of the question type.
  */
-export type QuestionUi = QuestionUiTable | QuestionUiTags;
+export type QuestionUi = QuestionUiTable | QuestionUiTags | QuestionUiMarkdown;
 
 /**
  * {@link QuestionUiColumn} without functions, sent to UI clients.
@@ -99,7 +110,7 @@ export type QuestionUiColumnDescriptor = Omit<QuestionUiColumn, 'valueHelp' | 'v
 /**
  * {@link QuestionUi} without functions, sent to UI clients.
  */
-export type QuestionUiDescriptor = (Omit<QuestionUiTable, 'columns'> & { columns: QuestionUiColumnDescriptor[] }) | QuestionUiTags;
+export type QuestionUiDescriptor = (Omit<QuestionUiTable, 'columns'> & { columns: QuestionUiColumnDescriptor[] }) | QuestionUiTags | QuestionUiMarkdown;
 
 function toColumnDescriptor(column: QuestionUiColumn, register: (valueHelp: ValueHelp) => string): QuestionUiColumnDescriptor {
     const { valueHelp, validate, columns, ...descriptor } = column;
@@ -175,12 +186,16 @@ function normalizeRows(columns: QuestionUiColumn[], rows: any): Record<string, a
 
 /**
  * Normalizes the answer of a {@link QuestionUi}: trims strings, applies case conversions, removes empty cells and empty rows.
+ * Markdown text is kept as is.
  * @param ui question ui
  * @param value answer
  */
 export function normalizeUiValue(ui: QuestionUi, value: any): any {
     if (ui.kind === 'table') {
         return normalizeRows(ui.columns || [], value);
+    }
+    if (ui.kind === 'markdown') {
+        return value === undefined || value === null ? '' : String(value);
     }
     const tags: string[] = [];
     (Array.isArray(value) ? value : []).forEach(tag => {
@@ -238,6 +253,9 @@ export async function validateUiValue(ui: QuestionUi, value: any): Promise<true 
             return 'Invalid rows';
         }
         return validateRows(ui.columns || [], value, '');
+    }
+    if (ui.kind === 'markdown') {
+        return typeof value === 'string' ? true : 'Invalid text';
     }
     if (!Array.isArray(value)) {
         return 'Invalid tags';

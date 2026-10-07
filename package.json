@@ -1,6 +1,6 @@
 {
   "name": "trm-commons",
-  "version": "5.2.0",
+  "version": "5.3.0",
   "description": "TRM (Transport Request Manager) Shared library",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

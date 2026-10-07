@@ -7,4 +7,4 @@ export * from "./TreeLog";
 export * from "./Logger";
 export * from "./CliLogFileLogger";
 export * from "./DummyLogger";
-export * from "./ConsoleLogger";
+export * from "./ConsoleLogger";export * from "./LogOptions";

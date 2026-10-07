@@ -2,12 +2,16 @@ import { ResponseMessage } from "trm-registry-types";
 import { TreeLog } from "./TreeLog";
 import { ILoggerMultibar } from "./ILoggerMultibar";
 import { ILoggerProgressbar } from "./ILoggerProgressbar";
+import { LogMessageOptions } from "./LogOptions";
 
 /**
  * Logger used by TRM modules. Implement this to plug a custom logger into {@link Logger}.
  *
  * Every output method accepts an optional `debug` flag: when `true`, the message
  * is only printed if the logger was created in debug mode ({@link ILogger.debug}).
+ *
+ * Text messages also accept optional {@link LogMessageOptions}: implementations that can't
+ * use them (e.g. terminal loggers) may ignore them.
  */
 export interface ILogger {
     /**
@@ -41,32 +45,37 @@ export interface ILogger {
      * Prints a success message.
      * @param text message, can span multiple lines
      * @param debug print only in debug mode
+     * @param options message options
      */
-    success: (text: string, debug?: boolean) => void,
+    success: (text: string, debug?: boolean, options?: LogMessageOptions) => void,
     /**
      * Prints an error message.
      * @param text message, can span multiple lines
      * @param debug print only in debug mode
+     * @param options message options
      */
-    error: (text: string, debug?: boolean) => void,
+    error: (text: string, debug?: boolean, options?: LogMessageOptions) => void,
     /**
      * Prints a warning message.
      * @param text message, can span multiple lines
      * @param debug print only in debug mode
+     * @param options message options
      */
-    warning: (text: string, debug?: boolean) => void,
+    warning: (text: string, debug?: boolean, options?: LogMessageOptions) => void,
     /**
      * Prints an information message.
      * @param text message, can span multiple lines
      * @param debug print only in debug mode
+     * @param options message options
      */
-    info: (text: string, debug?: boolean) => void,
+    info: (text: string, debug?: boolean, options?: LogMessageOptions) => void,
     /**
      * Prints a plain message.
      * @param text message, can span multiple lines
      * @param debug print only in debug mode
+     * @param options message options
      */
-    log: (text: string, debug?: boolean) => void,
+    log: (text: string, debug?: boolean, options?: LogMessageOptions) => void,
     /**
      * Prints a table.
      * @param header column titles
@@ -91,8 +100,9 @@ export interface ILogger {
      * @param msgty SAP message type: `A` or `E` (error), `W` (warning), `I` (info), `S` (success). Other values are ignored.
      * @param text message
      * @param debug print only in debug mode
+     * @param options message options
      */
-    msgty: (msgty: string, text: string, debug?: boolean) => void,
+    msgty: (msgty: string, text: string, debug?: boolean, options?: LogMessageOptions) => void,
     /**
      * Creates a progress bar.
      * @param format bar format (cli-progress syntax, e.g. `{bar} {value}/{total}`)
