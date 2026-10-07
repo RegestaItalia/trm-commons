@@ -5,7 +5,7 @@ import { Logger } from "../logger";
 /**
  * Connection to an SAP system through RFC (node-rfc).
  *
- * Connection data: `dest` (system ID), `ashost`, `sysnr`, `saprouter` (optional),
+ * Connection data: `ashost`, `sysnr`, `saprouter` (optional),
  * `client`, `user`, `passwd`, `lang`.
  */
 export class RFCConnect implements IConnect {
@@ -34,21 +34,6 @@ export class RFCConnect implements IConnect {
             }
         }, {
             type: `input`,
-            name: `dest`,
-            message: `System ID`,
-            default: typeof commandArgs.dest === 'string' ? commandArgs.dest.toUpperCase() : commandArgs.dest,
-            when: (hash) => {
-                return (commandArgs.dest ? false : true) || force;
-            },
-            validate: (val) => {
-                if (val && /^\w{3}$/.test(val)) {
-                    return true;
-                } else {
-                    return `Invalid input: expected length 3, only letters allowed`;
-                }
-            }
-        }, {
-            type: `input`,
             name: `sysnr`,
             message: `Instance number`,
             default: commandArgs.sysnr,
@@ -71,9 +56,6 @@ export class RFCConnect implements IConnect {
                 return (commandArgs.saprouter ? false : true) || force;
             }
         }]);
-        if (typeof this._connData.dest === 'string') {
-            this._connData.dest = this._connData.dest.toUpperCase();
-        }
         if(this._connData.saprouter && !this._connData.saprouter.trim()){
             this._connData.saprouter = undefined; //force back to empty (cases where it's blank string)
         }
@@ -81,9 +63,6 @@ export class RFCConnect implements IConnect {
 
     public async onAfterLoginData(force: boolean, commandArgs: any): Promise<void> {
         this._connData = { ...commandArgs, ...this._connData };
-        if (typeof this._connData.dest === 'string') {
-            this._connData.dest = this._connData.dest.toUpperCase();
-        }
         if(this._connData.user){
             this._connData.user = this._connData.user.toUpperCase();
         }
@@ -95,7 +74,6 @@ export class RFCConnect implements IConnect {
 
     public getData(): any {
         var parsed: any = {
-            dest: this._connData.dest,
             ashost: this._connData.ashost,
             sysnr: this._connData.sysnr,
             client: this._connData.client,
@@ -110,11 +88,6 @@ export class RFCConnect implements IConnect {
     }
 
     public logData() {
-        if (this._connData.dest) {
-            Logger.info(`System ID: ${this._connData.dest}`);
-        } else {
-            Logger.warning(`System ID: Unknown`);
-        }
         if (this._connData.ashost) {
             Logger.info(`Application server: ${this._connData.ashost}`);
         } else {

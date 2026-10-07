@@ -3,16 +3,18 @@ import { ILogger } from "./ILogger";
 import { TreeLog } from "./TreeLog";
 import { ILoggerProgressbar } from "./ILoggerProgressbar";
 import { ILoggerMultibar } from "./ILoggerMultibar";
+import cliTable from "cli-table3";
+import * as cliProgress from "cli-progress";
 
 /**
- * Plain {@link ILogger} writing to the console, without colors or animations.
- * Suitable for non-interactive environments (e.g. CI pipelines).
- *
- * Tables and trees are printed as JSON, progress bars as `value/total` lines.
+ * Non-interactive counterpart to {@link CliLogger}. Keeps its status symbols,
+ * tables, trees and formatted progress bars, but writes stable lines instead
+ * of animating or moving the cursor. Suitable for CI logs and redirected output.
  */
 export class ConsoleLogger implements ILogger {
 
     private _prefix: string = '';
+    private _loading: string | undefined;
 
     /**
      * @param debug print messages flagged as debug
@@ -23,53 +25,70 @@ export class ConsoleLogger implements ILogger {
         if (debug && !this.debug) {
             return;
         }
-        console.log(this._prefix + text);
+        const message = this._prefix + text;
+        if (this._loading !== message) {
+            this._loading = message;
+            console.log(`… ${message}`);
+        }
     }
 
     public success(text: string, debug?: boolean): void {
         if (debug && !this.debug) {
             return;
         }
-        console.log(this._prefix + text);
+        this.printStatus('✔', text, console.log);
     }
 
     public error(text: string, debug?: boolean): void {
         if (debug && !this.debug) {
             return;
         }
-        console.error(this._prefix + text);
+        this.printStatus('✖', text, console.error);
     }
 
     public warning(text: string, debug?: boolean): void {
         if (debug && !this.debug) {
             return;
         }
-        console.warn(this._prefix + text);
+        this.printStatus('⚠', text, console.warn);
     }
 
     public info(text: string, debug?: boolean): void {
         if (debug && !this.debug) {
             return;
         }
-        console.info(this._prefix + text);
+        this.printStatus('ℹ', text, console.info);
     }
 
     public log(text: string, debug?: boolean): void {
         if (debug && !this.debug) {
             return;
         }
-        console.log(this._prefix + text);
+        this.forceStop();
+        text.split('\n').forEach(line => console.log(this._prefix + line));
+    }
+
+    private printStatus(symbol: string, text: string, write: (message: string) => void): void {
+        this.forceStop();
+        text.split('\n').forEach(line => write(`${symbol} ${this._prefix}${line}`));
     }
 
     public table(header: string[], data: string[][], debug?: boolean): void {
         if (debug && !this.debug) {
             return;
         }
-        const table = {
-            header,
-            data
-        };
-        console.log(this._prefix + JSON.stringify(table));
+        this.forceStop();
+        const table = new cliTable({
+            head: header,
+            chars: {
+                'top': '═', 'top-mid': '╤', 'top-left': '╔', 'top-right': '╗',
+                'bottom': '═', 'bottom-mid': '╧', 'bottom-left': '╚', 'bottom-right': '╝',
+                'left': '║', 'left-mid': '╟', 'mid': '─', 'mid-mid': '┼',
+                'right': '║', 'right-mid': '╢', 'middle': '│'
+            }
+        });
+        data.forEach(row => table.push(row));
+        table.toString().split('\n').forEach(line => console.log(this._prefix + line));
     }
 
     public registryResponse(response: ResponseMessage, debug?: boolean): void {
@@ -91,7 +110,17 @@ export class ConsoleLogger implements ILogger {
         if (debug && !this.debug) {
             return;
         }
-        console.log(this._prefix + JSON.stringify(data));
+        this.forceStop();
+        const render = (node: TreeLog, branch: string): void => {
+            const children = node.children || [];
+            const head = branch && (children.length ? '┬ ' : '─ ');
+            console.log(this._prefix + branch + head + node.text);
+            const base = branch ? branch.slice(0, -2) + (branch.endsWith('└─') ? '  ' : '│ ') : '';
+            children.forEach((child, index) => {
+                render(child, base + (index === children.length - 1 ? '└─' : '├─'));
+            });
+        };
+        render(data, '');
     }
 
     public setPrefix(text: string): void {
@@ -126,45 +155,60 @@ export class ConsoleLogger implements ILogger {
         }
     }
 
-    public forceStop(): string {
-        return;
+    public forceStop(): void {
+        this._loading = undefined;
     }
 
     public progressbar(format: string, glue: string): ILoggerProgressbar {
-        var barTotal;
+        const logger = this;
+        const bar = new cliProgress.SingleBar({
+            noTTYOutput: true,
+            notTTYSchedule: 2000,
+            clearOnComplete: false,
+            barGlue: glue,
+            format: this._prefix + format
+        }, cliProgress.Presets.legacy);
         return {
             start(total: number, value: number, payload?: any) {
-                barTotal = total;
-                console.log(`${value}/${total}${payload ? ' ' + JSON.stringify(payload) : ''}`);
+                logger.forceStop();
+                bar.start(total, value, payload);
             },
             stop() {
-                return;
+                bar.stop();
             },
             update(value: number, payload?: any) {
-                console.log(`${value}/${barTotal}${payload ? ' ' + JSON.stringify(payload) : ''}`);
+                bar.update(value, payload);
             }
         }
     }
 
     public multibar(format: string, glue: string): ILoggerMultibar {
+        const logger = this;
+        const multibar = new cliProgress.MultiBar({
+            noTTYOutput: true,
+            notTTYSchedule: 2000,
+            clearOnComplete: false,
+            barGlue: glue,
+            format: this._prefix + format
+        }, cliProgress.Presets.legacy);
         return {
             create(total: number, startValue: number, payload?: any): ILoggerProgressbar {
-                var barTotal = total;
+                logger.forceStop();
+                const bar = multibar.create(total, startValue, payload);
                 return {
                     start(total: number, value: number, payload?: any) {
-                        barTotal = total;
-                        console.log(`${value}/${total}${payload ? ' ' + JSON.stringify(payload) : ''}`);
+                        bar.start(total, value, payload);
                     },
                     stop() {
-                        return;
+                        bar.stop();
                     },
                     update(value: number, payload?: any) {
-                        console.log(`${value}/${barTotal}${payload ? ' ' + JSON.stringify(payload) : ''}`);
+                        bar.update(value, payload);
                     }
                 }
             },
             stop() {
-                return;
+                multibar.stop();
             }
         }
     }

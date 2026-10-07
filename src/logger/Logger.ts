@@ -6,6 +6,7 @@ import { InspectOptions } from "util";
 import { inspect as utilInspect } from "util";
 import { ILoggerProgressbar } from "./ILoggerProgressbar";
 import { ILoggerMultibar } from "./ILoggerMultibar";
+import { LogMessageOptions, LogOptions } from "./LogOptions";
 
 /**
  * Same as Node.js `util.inspect`, but hides authentication data (`_authData` and `_login` properties).
@@ -28,9 +29,13 @@ export function inspect(object: any, options?: InspectOptions): string {
  *
  * See {@link ILogger} for details on each function.
  *
+ * Text messages accept either the `debug` flag or {@link LogOptions}: flag a message as
+ * `important` when it must stay visible after the operation ends.
+ *
  * @example
  * Logger.logger = new CliLogger(false);
  * Logger.success('Done');
+ * Logger.warning('Transport was not released', { important: true });
  */
 export namespace Logger {
 
@@ -46,6 +51,29 @@ export namespace Logger {
     }
 
     /**
+     * Splits the `debug` flag from the message options.
+     * Options are only returned when set, so loggers unaware of them receive the same arguments as before.
+     */
+    function parseOptions(options?: boolean | LogOptions): { debug?: boolean, messageOptions?: LogMessageOptions } {
+        if (!options || typeof options !== 'object') {
+            return { debug: options as boolean };
+        }
+        return {
+            debug: options.debug,
+            messageOptions: options.important ? { important: true } : undefined
+        };
+    }
+
+    function logText(method: 'success' | 'error' | 'warning' | 'info' | 'log', text: string, options?: boolean | LogOptions): void {
+        checkLogger();
+        const { debug, messageOptions } = parseOptions(options);
+        if (messageOptions) {
+            return logger[method](text, debug, messageOptions);
+        }
+        return logger[method](text, debug);
+    }
+
+    /**
      * Shows a message for an operation in progress, until the next message.
      * @see {@link ILogger.loading}
      */
@@ -58,45 +86,40 @@ export namespace Logger {
      * Prints a success message.
      * @see {@link ILogger.success}
      */
-    export function success(text: string, debug?: boolean): void {
-        checkLogger();
-        return logger.success(text, debug);
+    export function success(text: string, options?: boolean | LogOptions): void {
+        return logText('success', text, options);
     }
 
     /**
      * Prints an error message.
      * @see {@link ILogger.error}
      */
-    export function error(text: string, debug?: boolean): void {
-        checkLogger();
-        return logger.error(text, debug);
+    export function error(text: string, options?: boolean | LogOptions): void {
+        return logText('error', text, options);
     }
 
     /**
      * Prints a warning message.
      * @see {@link ILogger.warning}
      */
-    export function warning(text: string, debug?: boolean): void {
-        checkLogger();
-        return logger.warning(text, debug);
+    export function warning(text: string, options?: boolean | LogOptions): void {
+        return logText('warning', text, options);
     }
 
     /**
      * Prints an information message.
      * @see {@link ILogger.info}
      */
-    export function info(text: string, debug?: boolean): void {
-        checkLogger();
-        return logger.info(text, debug);
+    export function info(text: string, options?: boolean | LogOptions): void {
+        return logText('info', text, options);
     }
 
     /**
      * Prints a plain message.
      * @see {@link ILogger.log}
      */
-    export function log(text: string, debug?: boolean): void {
-        checkLogger();
-        return logger.log(text, debug);
+    export function log(text: string, options?: boolean | LogOptions): void {
+        return logText('log', text, options);
     }
 
     /**
@@ -155,8 +178,12 @@ export namespace Logger {
      * Prints a message based on an SAP message type (`A`, `E`, `W`, `I`, `S`).
      * @see {@link ILogger.msgty}
      */
-    export function msgty(msgty: string, text: string, debug?: boolean): void {
+    export function msgty(msgty: string, text: string, options?: boolean | LogOptions): void {
         checkLogger();
+        const { debug, messageOptions } = parseOptions(options);
+        if (messageOptions) {
+            return logger.msgty(msgty, text, debug, messageOptions);
+        }
         return logger.msgty(msgty, text, debug);
     }
 
