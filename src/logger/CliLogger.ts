@@ -15,7 +15,10 @@ import { ILoggerMultibar } from "./ILoggerMultibar";
 export class CliLogger implements ILogger {
 
     private _loader: loadingCli.Loading;
+    private _loading: string | undefined;
     private _prefix: string = '';
+    // same check loading-cli uses to enable its animation
+    private readonly _interactive: boolean = !!process.stderr.isTTY && !process.env.CI;
 
     /**
      * @param debug print messages flagged as debug
@@ -35,12 +38,22 @@ export class CliLogger implements ILogger {
         if (debug && !this.debug) {
             return;
         }
-        
+
+        // no spinner without a terminal: print the text once, on its own line
+        if (!this._interactive) {
+            const message = this._prefix + text;
+            if (this._loading !== message) {
+                this._loading = message;
+                process.stderr.write(`… ${message}\n`);
+            }
+            return;
+        }
+
         const max = (process.stderr.columns || 80) - 4;
         const fit = (this._prefix + text).length > max ? (this._prefix + text).slice(0, max - 1) + '…' : (this._prefix + text);
 
         if (this._loader) {
-            if (this._loader.text === text) {
+            if (this._loader.text === fit) {
                 return;
             }else{
                 this._loader.stop();
@@ -190,6 +203,7 @@ export class CliLogger implements ILogger {
     }
 
     public forceStop(): void {
+        this._loading = undefined;
         try {
             this._loader.stop();
         } catch (e) { }
