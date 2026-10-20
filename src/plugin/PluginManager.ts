@@ -3,7 +3,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { Logger } from "../logger";
 import { PluginContext, PluginCtx, PluginHandler, PluginRegisterFn } from ".";
-import { getGlobalNodeModules } from "../utils/getGlobalNodeModules";
+import { getGlobalNodeModulesPaths, isSamePath } from "../utils/getGlobalNodeModules";
 
 type Registered = {
   ctx: PluginCtx;
@@ -24,9 +24,10 @@ export type LoadOptions = {
    */
   defaultHandlerTimeoutMs?: number;
   /**
-   * global `node_modules` path to search for plugins (default: output of `npm root -g`)
+   * global `node_modules` path(s) to search for plugins, searched together with the other detected global folders
+   * (see {@link getGlobalNodeModulesPaths}); when set, `npm root -g` is not run
    */
-  globalNodeModulesPath?: string;
+  globalNodeModulesPath?: string | string[];
 };
 
 /**
@@ -52,17 +53,18 @@ class PluginManager {
 
   private regs: Registered[] = [];
   private plugins: PluginModule[] = [];
-  private options: Required<LoadOptions>;
+  private options: { defaultHandlerTimeoutMs: number, globalNodeModulesPaths: string[] };
 
   public constructor(opts?: LoadOptions) {
+    const configured = [].concat(opts?.globalNodeModulesPath ?? []).filter(Boolean) as string[];
     this.options = {
       defaultHandlerTimeoutMs: opts?.defaultHandlerTimeoutMs ?? 3000,
-      globalNodeModulesPath: opts?.globalNodeModulesPath ?? getGlobalNodeModules()
+      globalNodeModulesPaths: configured.concat(getGlobalNodeModulesPaths({ npm: configured.length === 0 }))
     };
   }
 
   /**
-   * Searches the nearest local `node_modules` and the global one for `trm-plugin-*` packages
+   * Searches the nearest local `node_modules` and the global ones for `trm-plugin-*` packages
    * (scoped too) and registers their handlers. Runs only once, concurrent calls share the same load.
    * Packages that fail to load are skipped.
    */
@@ -169,7 +171,9 @@ class PluginManager {
     const nm = this.findNearestNodeModules(process.cwd());
     if (nm) dirs.push(nm);
     //globals
-    if (this.options.globalNodeModulesPath) dirs.push(this.options.globalNodeModulesPath);
+    for (const globalPath of this.options.globalNodeModulesPaths) {
+      if (!dirs.some(o => isSamePath(o, globalPath))) dirs.push(globalPath);
+    }
     return dirs;
   }
 
