@@ -63,64 +63,31 @@ export class CliLogger implements ILogger {
         this._loader = this.getLoadingCliInstance(fit).start();
     }
 
-    public success(text: string, debug?: boolean) {
+    // npm style: "trm <level> <message>", one line per message line
+    private print(level: string, text: string, debug?: boolean): void {
         if (debug && !this.debug) {
             return;
         }
-        const aText = text.split('\n');
-        aText.forEach(s => {
-            s = chalk.green(this._prefix + s);
-            if (this._loader) {
-                this._loader.render().succeed(s);
-            } else {
-                this.getLoadingCliInstance(s).succeed(s);
-            }
+        this.forceStop();
+        text.split('\n').forEach(s => {
+            process.stderr.write(`${chalk.bold('trm')} ${level} ${this._prefix}${s}\n`);
         });
+    }
+
+    public success(text: string, debug?: boolean) {
+        this.print(chalk.green('success'), text, debug);
     }
 
     public error(text: string, debug?: boolean): void {
-        if (debug && !this.debug) {
-            return;
-        }
-        const aText = text.split('\n');
-        aText.forEach(s => {
-            s = chalk.red(this._prefix + s);
-            if (this._loader) {
-                this._loader.render().fail(s);
-            } else {
-                this.getLoadingCliInstance(s).fail(s);
-            }
-        });
+        this.print(chalk.red('error'), text, debug);
     }
 
     public warning(text: string, debug?: boolean): void {
-        if (debug && !this.debug) {
-            return;
-        }
-        const aText = text.split('\n');
-        aText.forEach(s => {
-            s = chalk.yellow(this._prefix + s);
-            if (this._loader) {
-                this._loader.render().warn(s);
-            } else {
-                this.getLoadingCliInstance(s).warn(s);
-            }
-        });
+        this.print(chalk.yellow('warn'), text, debug);
     }
 
     public info(text: string, debug?: boolean): void {
-        if (debug && !this.debug) {
-            return;
-        }
-        const aText = text.split('\n');
-        aText.forEach(s => {
-            s = this._prefix + s;
-            if (this._loader) {
-                this._loader.render().info(s);
-            } else {
-                this.getLoadingCliInstance(s).info(s);
-            }
-        });
+        this.print(chalk.blue('notice'), text, debug);
     }
 
     public log(text: string, debug?: boolean): void {
