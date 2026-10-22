@@ -13,7 +13,7 @@
 
 [trm-commons](https://www.npmjs.com/package/trm-commons) is the shared library used by TRM components ([trm-client](https://github.com/RegestaItalia/trm-client), [trm-core](https://github.com/RegestaItalia/trm-core), plugins).
 
-🚚 **TRM (Transport Request Manager)** is a package manager inspired solution built leveraging CTS that simplifies SAP ABAP transports.
+🚚 **TRM (Transport Request Manager)** is an open-source package manager for SAP ABAP that publishes, installs, updates, and uninstalls versioned software through CTS transports.
 
 > [!NOTE]
 > This is a technical module meant for developers who build or extend TRM.
