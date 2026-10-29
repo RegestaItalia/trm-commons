@@ -9,8 +9,10 @@ export type Question = {
      * prompt type
      *
      * `list` is deprecated: it is handled as `search`, filtering {@link Question.choices}
+     *
+     * `changelog` is rendered by UI clients only: other inquirers skip it, without an answer
      */
-    type: 'confirm' | 'input' | 'list' | 'editor' | 'password' | 'select' | 'search',
+    type: 'confirm' | 'input' | 'list' | 'editor' | 'password' | 'select' | 'search' | 'changelog',
     /**
      * text shown to the user
      */

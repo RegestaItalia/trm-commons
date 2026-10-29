@@ -6,6 +6,7 @@ import { IInquirer } from "./IInquirer";
  *
  * A question that would be asked (its `when` is not `false`) takes its default; without a default,
  * the prompt fails with an error naming the missing value instead of waiting for an answer.
+ * `changelog` questions are skipped.
  * Prefix functions are delegated to the wrapped inquirer.
  *
  * @example
@@ -25,6 +26,9 @@ export class NonInteractiveInquirer implements IInquirer {
         const aQuestions: any[] = Array.isArray(arg1) ? arg1 : [arg1];
         const answers: any = {};
         for (const question of aQuestions) {
+            if (question.type === 'changelog') { // UI only
+                continue;
+            }
             const when = typeof question.when === 'function' ? await question.when(answers) : question.when;
             if (when === false) {
                 continue;

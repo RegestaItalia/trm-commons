@@ -32,6 +32,9 @@ export class CliInquirer implements IInquirer {
         }
         for(var question of aQuestions){
             oResponse = {};
+            if(question.type === 'changelog'){ // UI only
+                continue;
+            }
             if(question.type === 'select'){
                 (question.type as any) = 'inquirer-select-pro';
             }
