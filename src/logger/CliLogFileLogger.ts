@@ -21,15 +21,16 @@ export class CliLogFileLogger extends CliLogger {
      * Creates the log directory (if missing) and a new log file.
      * @param _dir directory where the log file is written
      * @param debug print messages flagged as debug to the terminal (they are always written to file)
+     * @param sessionId ID of the log session, e.g. the TRM session ID (trm-core `getSessionId()`). A new UUID if omitted.
      */
-    constructor(private _dir: string, debug?: boolean) {
+    constructor(private _dir: string, debug?: boolean, sessionId?: string) {
         super(debug);
         if (!existsSync(this._dir)) {
             mkdirSync(this._dir, {
                 recursive: true
             });
         }
-        this._sessionId = randomUUID();
+        this._sessionId = sessionId || randomUUID();
         this._filePath = join(this._dir, `${this._sessionId}.txt`);
         writeFileSync(this.getFilePath(), `*** STARTING LOG SESSION ID ${this._sessionId}, ${new Date().toISOString()} ***`);
     }
