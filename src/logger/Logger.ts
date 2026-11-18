@@ -7,6 +7,7 @@ import { inspect as utilInspect } from "util";
 import { ILoggerProgressbar } from "./ILoggerProgressbar";
 import { ILoggerMultibar } from "./ILoggerMultibar";
 import { LogMessageOptions, LogOptions } from "./LogOptions";
+import { TransportProgress } from "./TransportProgress";
 
 /**
  * Same as Node.js `util.inspect`, but hides authentication data (`_authData` and `_login` properties).
@@ -80,6 +81,19 @@ export namespace Logger {
     export function loading(text: string, debug?: boolean): void {
         checkLogger();
         return logger.loading(text, debug);
+    }
+
+    /**
+     * Shows the progress of a transport request operation that is polled until it ends, until the next message.
+     * Loggers without {@link ILogger.transportProgress} show `progress.text` as a loading message.
+     * @see {@link ILogger.transportProgress}
+     */
+    export function transportProgress(progress: TransportProgress, debug?: boolean): void {
+        checkLogger();
+        if (typeof logger.transportProgress === 'function') {
+            return logger.transportProgress(progress, debug);
+        }
+        return logger.loading(progress.text, debug);
     }
 
     /**

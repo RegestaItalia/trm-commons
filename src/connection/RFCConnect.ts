@@ -41,10 +41,10 @@ export class RFCConnect implements IConnect {
                 return (commandArgs.sysnr ? false : true) || force;
             },
             validate: (val) => {
-                if (val && /^\d{2}$/.test(val)) {
+                if (val && /^\d{1,2}$/.test(val)) {
                     return true;
                 } else {
-                    return `Invalid input: expected length 2, only numbers allowed`;
+                    return `Invalid input: expected 1 or 2 digits`;
                 }
             }
         }, {
@@ -56,7 +56,10 @@ export class RFCConnect implements IConnect {
                 return (commandArgs.saprouter ? false : true) || force;
             }
         }]);
-        if(this._connData.saprouter && !this._connData.saprouter.trim()){
+        if(this._connData.sysnr && /^\d$/.test(this._connData.sysnr)){
+            this._connData.sysnr = this._connData.sysnr.padStart(2, '0'); //instance number is always 2 digits (e.g. 0 -> 00)
+        }
+        if(this._connData.saprouter &&!this._connData.saprouter.trim()){
             this._connData.saprouter = undefined; //force back to empty (cases where it's blank string)
         }
     }

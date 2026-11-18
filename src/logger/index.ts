@@ -8,3 +8,4 @@ export * from "./Logger";
 export * from "./CliLogFileLogger";
 export * from "./DummyLogger";
 export * from "./ConsoleLogger";export * from "./LogOptions";
+export * from "./TransportProgress";
