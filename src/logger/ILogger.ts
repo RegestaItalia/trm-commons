@@ -3,6 +3,7 @@ import { TreeLog } from "./TreeLog";
 import { ILoggerMultibar } from "./ILoggerMultibar";
 import { ILoggerProgressbar } from "./ILoggerProgressbar";
 import { LogMessageOptions } from "./LogOptions";
+import { TransportProgress } from "./TransportProgress";
 
 /**
  * Logger used by TRM modules. Implement this to plug a custom logger into {@link Logger}.
@@ -37,6 +38,14 @@ export interface ILogger {
      * @param debug print only in debug mode
      */
     loading: (text: string, debug?: boolean) => void,
+    /**
+     * Shows the progress of a transport request operation that is polled until it ends, until the next message.
+     * Called at every check of the same operation: implement it to update one progress view in place.
+     * Optional: when missing, {@link Logger.transportProgress} shows `progress.text` with {@link ILogger.loading}.
+     * @param progress operation progress
+     * @param debug print only in debug mode
+     */
+    transportProgress?: (progress: TransportProgress, debug?: boolean) => void,
     /**
      * Stops the current loading message, if any.
      */
